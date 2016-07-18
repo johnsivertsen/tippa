@@ -1,16 +1,16 @@
 package controllers
 
-import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import maps.Maps._
 import maps.OrderMap
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import play.api.mvc.{Action, BodyParsers, Controller}
-import services.IOrderService
+import services.OrderService
+import javax.inject._
 
 @Singleton
-class OrderController @Inject() (orderService: IOrderService) extends Controller {
+class OrderController @Inject() (orderService: OrderService) extends Controller {
 
 	def getOrders = Action.async {
 		orderService.getOrders.map(data => Ok(Json.toJson(data)))
