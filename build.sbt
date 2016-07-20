@@ -2,8 +2,16 @@ name := """tippa"""
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.11.7"
+lazy val root = project.in(file(".")).enablePlugins(PlayScala)
 
-resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+scalaVersion := "2.11.8"
 
-routesGenerator := InjectedRoutesGenerator
+libraryDependencies ++= Seq(
+  ws,
+	"com.typesafe.slick"  %% "slick"                  % "3.1.1",
+  "com.typesafe.play"   %% "play-slick"             % "2.0.0",
+  "com.typesafe.play"   %% "play-slick-evolutions"  % "2.0.0",
+	"com.h2database"      % "h2"                      % "1.4.190"
+)
+
+CoffeeScriptKeys.bare := true
