@@ -21,17 +21,21 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
 	val db = dbConfig.db
 	import dbConfig.driver.api._
 
-  def viewFilter(user: UserRow, callingUsername: String): UserRow = {
-    if (user.eMail != callingUsername) {
-      new UserRow(user.id, "", "", user.firstName, user.lastName, new Timestamp(0), "")
+  def viewFilter(user: Option[UserRow], callingUsername: String): Option[UserRow] = {
+    if (user.isDefined) {
+      if (user.get.eMail != callingUsername) {
+        new Some(UserRow(user.get.id, "", "", user.get.firstName, user.get.lastName, new Timestamp(0), ""))
+      } else {
+        user
+      }
     } else {
       user
     }
   }
 
-	def getUser(id: Long, callingUsername: String): Future[UserRow] = {
+	def getUser(id: Long, callingUsername: String): Future[Option[UserRow]] = {
 	  db.run {
-	    User.filter(_.id === id.intValue).result.head
+	    User.filter(_.id === id.intValue).result.headOption
 	  }.map(viewFilter(_, callingUsername))
 	}
 	

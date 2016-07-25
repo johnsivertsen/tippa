@@ -29,6 +29,11 @@ class Users @Inject() (usersService: UsersService) extends Controller {
 	}
 
 	def show(id: Long) = AuthenticatedAction.async { implicit request => //implicit userRowWrites =>
-    usersService.getUser(id, request.username).map(data => Ok(Json.toJson(data)))
+    usersService.getUser(id, request.username).map {data =>
+      data match {
+        case Some(value) => Ok(Json.toJson(data))
+        case _ => NotFound
+      }
+    }
 	}
 }

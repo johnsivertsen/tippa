@@ -13,8 +13,17 @@ create table user (
   status varchar not null
 );
 
-INSERT INTO user (id, e_mail, password, first_name, last_name, status) VALUES (1, 'email@email.com', '$2a$04$JrYh6HuEKF9X4SGKedmFaODNyIJLVwbDrYPJ8QF0sKel.X4Tm27Pa', 'John', 'Doe', 'ACTIVE');
- 
+insert into user (id, e_mail, password, first_name, last_name, status) VALUES (1, 'email@email.com', '$2a$04$JrYh6HuEKF9X4SGKedmFaODNyIJLVwbDrYPJ8QF0sKel.X4Tm27Pa', 'John', 'Doe', 'ACTIVE');
+
+create table user_role (
+  id integer primary key auto_increment,
+  id_user integer not null,
+  role varchar not null,
+  created_date timestamp not null default now(),
+  foreign key (id_user) references user(id)
+);
+
+insert into user_role(id_user, role) values(1, 'ADMIN');
 
 -- tournament
 create table tournament (
@@ -24,6 +33,11 @@ create table tournament (
   type varchar not null default 'football',
   created_date timestamp not null default now()
 );
+
+insert into tournament(short_name, full_name, type) values('WC 2018', 'Football World Cup 2018', 'football');
+insert into tournament(short_name, full_name, type) values('WC 2022', 'Football World Cup 2022', 'football');
+insert into tournament(short_name, full_name, type) values('WC 2026', 'Football World Cup 2026', 'football');
+insert into tournament(short_name, full_name, type) values('WC 2030', 'Football World Cup 2030', 'football');
 
 -- round
 create table round (
@@ -159,4 +173,5 @@ drop table team;
 drop table user_tournament;
 drop table round;
 drop table tournament;
+drop table user_role;
 drop table user;

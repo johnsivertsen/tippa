@@ -7,9 +7,9 @@ GET       /logout               controllers.Authentication.logout
 #POST     /users                                                  controllers.Users.create
 GET      /users/:id                                              controllers.Users.show(id: Long)
 #PUT      /users/:id                                              controllers.Users.updated(id)
-#GET      /tournaments
+GET      /tournaments                                             controllers.Tournaments.getTournaments
 #POST     /tournaments
-#GET      /tournaments/:id
+GET      /tournaments/:id                                         controllers.Tournaments.getTournamentsById(id: Long)
 #PUT      /tournaments/:id
 #GET      /tournaments/:id/rounds
 #POST     /tournaments/:id/rounds

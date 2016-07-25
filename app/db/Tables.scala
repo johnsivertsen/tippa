@@ -14,7 +14,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Array(Bet.schema, Fixture.schema, FriendGroup.schema, FriendGroupUser.schema, Log.schema, Message.schema, Order.schema, PlayEvolutions.schema, Round.schema, Team.schema, Tournament.schema, TournamentTeam.schema, User.schema, UserTournament.schema).reduceLeft(_ ++ _)
+  lazy val schema: profile.SchemaDescription = Array(Bet.schema, Fixture.schema, FriendGroup.schema, FriendGroupUser.schema, Log.schema, Message.schema, PlayEvolutions.schema, Round.schema, Team.schema, Tournament.schema, TournamentTeam.schema, User.schema, UserRole.schema, UserTournament.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -278,35 +278,6 @@ trait Tables {
   /** Collection-like TableQuery object for table Message */
   lazy val Message = new TableQuery(tag => new Message(tag))
 
-  /** Entity class storing rows of table Order
-   *  @param id Database column ID SqlType(INTEGER), AutoInc, PrimaryKey
-   *  @param date Database column DATE SqlType(TIMESTAMP)
-   *  @param name Database column NAME SqlType(VARCHAR)
-   *  @param description Database column DESCRIPTION SqlType(VARCHAR) */
-  case class OrderRow(id: Int, date: java.sql.Timestamp, name: String, description: Option[String])
-  /** GetResult implicit for fetching OrderRow objects using plain SQL queries */
-  implicit def GetResultOrderRow(implicit e0: GR[Int], e1: GR[java.sql.Timestamp], e2: GR[String], e3: GR[Option[String]]): GR[OrderRow] = GR{
-    prs => import prs._
-    OrderRow.tupled((<<[Int], <<[java.sql.Timestamp], <<[String], <<?[String]))
-  }
-  /** Table description of table order. Objects of this class serve as prototypes for rows in queries. */
-  class Order(_tableTag: Tag) extends Table[OrderRow](_tableTag, "order") {
-    def * = (id, date, name, description) <> (OrderRow.tupled, OrderRow.unapply)
-    /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(date), Rep.Some(name), description).shaped.<>({r=>import r._; _1.map(_=> OrderRow.tupled((_1.get, _2.get, _3.get, _4)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-
-    /** Database column ID SqlType(INTEGER), AutoInc, PrimaryKey */
-    val id: Rep[Int] = column[Int]("ID", O.AutoInc, O.PrimaryKey)
-    /** Database column DATE SqlType(TIMESTAMP) */
-    val date: Rep[java.sql.Timestamp] = column[java.sql.Timestamp]("DATE")
-    /** Database column NAME SqlType(VARCHAR) */
-    val name: Rep[String] = column[String]("NAME")
-    /** Database column DESCRIPTION SqlType(VARCHAR) */
-    val description: Rep[Option[String]] = column[Option[String]]("DESCRIPTION")
-  }
-  /** Collection-like TableQuery object for table Order */
-  lazy val Order = new TableQuery(tag => new Order(tag))
-
   /** Entity class storing rows of table PlayEvolutions
    *  @param id Database column ID SqlType(INTEGER), PrimaryKey
    *  @param hash Database column HASH SqlType(VARCHAR), Length(255,true)
@@ -531,6 +502,38 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table User */
   lazy val User = new TableQuery(tag => new User(tag))
+
+  /** Entity class storing rows of table UserRole
+   *  @param id Database column ID SqlType(INTEGER), AutoInc, PrimaryKey
+   *  @param idUser Database column ID_USER SqlType(INTEGER)
+   *  @param role Database column ROLE SqlType(VARCHAR)
+   *  @param createdDate Database column CREATED_DATE SqlType(TIMESTAMP) */
+  case class UserRoleRow(id: Int, idUser: Int, role: String, createdDate: java.sql.Timestamp)
+  /** GetResult implicit for fetching UserRoleRow objects using plain SQL queries */
+  implicit def GetResultUserRoleRow(implicit e0: GR[Int], e1: GR[String], e2: GR[java.sql.Timestamp]): GR[UserRoleRow] = GR{
+    prs => import prs._
+    UserRoleRow.tupled((<<[Int], <<[Int], <<[String], <<[java.sql.Timestamp]))
+  }
+  /** Table description of table USER_ROLE. Objects of this class serve as prototypes for rows in queries. */
+  class UserRole(_tableTag: Tag) extends Table[UserRoleRow](_tableTag, "USER_ROLE") {
+    def * = (id, idUser, role, createdDate) <> (UserRoleRow.tupled, UserRoleRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(idUser), Rep.Some(role), Rep.Some(createdDate)).shaped.<>({r=>import r._; _1.map(_=> UserRoleRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column ID SqlType(INTEGER), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("ID", O.AutoInc, O.PrimaryKey)
+    /** Database column ID_USER SqlType(INTEGER) */
+    val idUser: Rep[Int] = column[Int]("ID_USER")
+    /** Database column ROLE SqlType(VARCHAR) */
+    val role: Rep[String] = column[String]("ROLE")
+    /** Database column CREATED_DATE SqlType(TIMESTAMP) */
+    val createdDate: Rep[java.sql.Timestamp] = column[java.sql.Timestamp]("CREATED_DATE")
+
+    /** Foreign key referencing User (database name CONSTRAINT_BC) */
+    lazy val userFk = foreignKey("CONSTRAINT_BC", idUser, User)(r => r.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
+  }
+  /** Collection-like TableQuery object for table UserRole */
+  lazy val UserRole = new TableQuery(tag => new UserRole(tag))
 
   /** Entity class storing rows of table UserTournament
    *  @param id Database column ID SqlType(INTEGER), AutoInc, PrimaryKey
