@@ -13,6 +13,9 @@ create table user (
   status varchar not null
 );
 
+INSERT INTO user (id, e_mail, password, first_name, last_name, status) VALUES (1, 'email@email.com', '$2a$04$JrYh6HuEKF9X4SGKedmFaODNyIJLVwbDrYPJ8QF0sKel.X4Tm27Pa', 'John', 'Doe', 'ACTIVE');
+ 
+
 -- tournament
 create table tournament (
   id integer primary key auto_increment,
@@ -143,17 +146,6 @@ create table log (
   created_date timestamp not null default now()
 );
 
--- dummy table and data:
-CREATE TABLE "order" (
-	id INTEGER PRIMARY KEY AUTO_INCREMENT,
-	date TIMESTAMP NOT NULL DEFAULT now(),
-	name VARCHAR NOT NULL,
-	description VARCHAR
-);
-
-INSERT INTO "order" (name, description) VALUES ('Nexus', 'Google Nexus 6P 128 GB Graphite');
-INSERT INTO "order" (name, description) VALUES ('Pixel', 'Google Pixel LS 2015');
-
 # --- !Downs
 
 drop table log;
@@ -168,6 +160,3 @@ drop table user_tournament;
 drop table round;
 drop table tournament;
 drop table user;
-
--- dummy table and data:
-DROP TABLE "order";
