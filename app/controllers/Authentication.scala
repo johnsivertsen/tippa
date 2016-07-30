@@ -1,6 +1,5 @@
 package controllers
 
-//import models.Users
 import services.UsersService
 import play.api.mvc._
 import play.api.mvc.Results.Redirect

@@ -12,22 +12,21 @@ import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc._
 import java.sql.Timestamp
-import org.mindrot.jbcrypt.BCrypt
 
-class TournamentsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
+class TeamsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
 	val dbConfig = dbConfigProvider.get[JdbcProfile]
 	val db = dbConfig.db
 	import dbConfig.driver.api._
 
-  def getTournaments: Future[Seq[TournamentRow]] = {
+  def getTeams: Future[Seq[TeamRow]] = {
     db.run{
-      Tournament.result
+      Team.result
     }
   }
   
-  def getTournamentsById(id: Long): Future[Option[TournamentRow]] = {
-    db.run{
-      Tournament.filter(_.id === id.intValue).result.headOption
+  def getTeam(id: Long): Future[Option[TeamRow]] = {
+    db.run {
+      Team.filter(_.id === id.intValue).result.headOption
     }
   }
 }

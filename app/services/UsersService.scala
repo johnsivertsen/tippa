@@ -3,9 +3,7 @@ package services
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
-import db.Tables._
-//import maps.Converters._
-//import maps.OrderMap
+import models.Tables._
 import org.joda.time.DateTime
 import javax.inject._
 import play.api.db.slick.DatabaseConfigProvider
@@ -49,4 +47,21 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
 	    }
 	  }
 	}
+	
+//  case class UserRow(id: Int, eMail: String, password: String, firstName: String, lastName: String, createdDate: java.sql.Timestamp, status: String)
+
+	def getTournamentUsers(idTournament: Long): Future[Seq[UserRow]] = {
+    val q = for {
+      ut <- UserTournament if ut.idTournament === idTournament.intValue
+      u <- User if u.id === ut.idUser
+    } yield u
+    
+    /*val q2 = q.map {
+      case User => new UserRow(_.id, "", "", _.firstName, _.lastName, new Timestamp(0), "")
+    }*/
+
+    db.run{
+      q.result
+    }
+  }
 }

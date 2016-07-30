@@ -1,32 +1,37 @@
-GET       /                     controllers.AppController.index
+GET       /                                                                   controllers.AppController.index
 
-GET       /login                controllers.Authentication.login(returnTo)
-POST      /authenticate         controllers.Authentication.authenticate(returnTo)
-GET       /logout               controllers.Authentication.logout
+GET       /login                                                              controllers.Authentication.login(returnTo)
+POST      /authenticate                                                       controllers.Authentication.authenticate(returnTo)
+GET       /logout                                                             controllers.Authentication.logout
 
-#POST     /users                                                  controllers.Users.create
-GET      /users/:id                                              controllers.Users.show(id: Long)
-#PUT      /users/:id                                              controllers.Users.updated(id)
-GET      /tournaments                                             controllers.Tournaments.getTournaments
+#POST     /users
+GET      /users/:id                                                           controllers.Users.getUser(id: Long)
+#PUT      /users/:id
+GET      /tournaments                                                         controllers.Tournaments.getTournaments
 #POST     /tournaments
-GET      /tournaments/:id                                         controllers.Tournaments.getTournamentsById(id: Long)
+GET      /tournaments/:id                                                     controllers.Tournaments.getTournamentsById(id: Long)
 #PUT      /tournaments/:id
-#GET      /tournaments/:id/rounds
+GET      /tournaments/:idTournament/rounds                                    controllers.Tournaments.getTournamentRounds(idTournament: Long)
 #POST     /tournaments/:id/rounds
 #PUT      /tournaments/:id/rounds
-#GET      /tournaments/:id/rounds/:id/fixtures
+GET      /tournaments/:idTournament/rounds/:idRound                           controllers.Tournaments.getTournamentRound(idTournament: Long, idRound: Long)
+#POST     /tournaments/:idTournament/rounds/:idRound
+#PUT      /tournaments/:idTournament/rounds/:idRound
+GET      /tournaments/:idTournament/rounds/:idRound/fixtures                  controllers.Tournaments.getTournamentRoundFixtures(idTournament: Long, idRound: Long)
 #POST     /tournaments/:id/rounds/:id/fixtures
 #PUT      /tournaments/:id/rounds/:id/fixtures
-#GET      /tournaments/:id/rounds/:id/fixtures/:id/bets
-#GET      /tournaments/:id/users
+GET      /tournaments/:idTournament/rounds/:idRound/fixtures/:idFixture       controllers.Tournaments.getTournamentRoundFixture(idTournament: Long, idRound: Long, idFixture: Long)
+GET      /tournaments/:idTournament/rounds/:idRound/fixtures/:idFixture/bets  controllers.Tournaments.getTournamentRoundFixtureBets(idTournament: Long, idRound: Long, idFixture: Long)
+GET      /tournaments/:idTournament/users                                     controllers.Tournaments.getUsers(idTournament: Long)
 #GET      /tournaments/:id/teams
-#GET      /teams/:id
-#GET      /bets/:id
+GET      /teams                                                               controllers.Teams.getTeams
+GET      /teams/:id                                                           controllers.Teams.getTeam(id: Long)
+GET      /bets/:id                                                            controllers.Bets.getBet(id: Long)
 #GET      /friend_groups/:id/users
 #GET      /friend_groups/:id/messages
 #GET      /messages/:id
 #POST     /messages/:id
 #POST     /logs
 
-GET        /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
-GET        /*any                controllers.AppController.angular(any)
+GET        /assets/*file                                                      controllers.Assets.versioned(path="/public", file: Asset)
+GET        /*any                                                              controllers.AppController.angular(any)

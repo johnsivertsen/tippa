@@ -1,4 +1,4 @@
-package db
+package models
 // AUTO-GENERATED Slick data model
 /** Stand-alone Slick data model for immediate use */
 object Tables extends {
@@ -63,7 +63,6 @@ trait Tables {
 
   /** Entity class storing rows of table Fixture
    *  @param id Database column ID SqlType(INTEGER), AutoInc, PrimaryKey
-   *  @param idTournament Database column ID_TOURNAMENT SqlType(INTEGER)
    *  @param idRound Database column ID_ROUND SqlType(INTEGER)
    *  @param idTeamHome Database column ID_TEAM_HOME SqlType(INTEGER)
    *  @param idTeamAway Database column ID_TEAM_AWAY SqlType(INTEGER)
@@ -74,22 +73,20 @@ trait Tables {
    *  @param startTime Database column START_TIME SqlType(TIMESTAMP)
    *  @param status Database column STATUS SqlType(VARCHAR)
    *  @param createdDate Database column CREATED_DATE SqlType(TIMESTAMP) */
-  case class FixtureRow(id: Int, idTournament: Int, idRound: Int, idTeamHome: Int, idTeamAway: Int, homePoints: Option[Int], awayPoints: Option[Int], homePointsAwarded: Option[Int], awayPointsAwarded: Option[Int], startTime: Option[java.sql.Timestamp], status: Option[String], createdDate: java.sql.Timestamp)
+  case class FixtureRow(id: Int, idRound: Int, idTeamHome: Int, idTeamAway: Int, homePoints: Option[Int], awayPoints: Option[Int], homePointsAwarded: Option[Int], awayPointsAwarded: Option[Int], startTime: Option[java.sql.Timestamp], status: Option[String], createdDate: java.sql.Timestamp)
   /** GetResult implicit for fetching FixtureRow objects using plain SQL queries */
   implicit def GetResultFixtureRow(implicit e0: GR[Int], e1: GR[Option[Int]], e2: GR[Option[java.sql.Timestamp]], e3: GR[Option[String]], e4: GR[java.sql.Timestamp]): GR[FixtureRow] = GR{
     prs => import prs._
-    FixtureRow.tupled((<<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[java.sql.Timestamp], <<?[String], <<[java.sql.Timestamp]))
+    FixtureRow.tupled((<<[Int], <<[Int], <<[Int], <<[Int], <<?[Int], <<?[Int], <<?[Int], <<?[Int], <<?[java.sql.Timestamp], <<?[String], <<[java.sql.Timestamp]))
   }
   /** Table description of table FIXTURE. Objects of this class serve as prototypes for rows in queries. */
   class Fixture(_tableTag: Tag) extends Table[FixtureRow](_tableTag, "FIXTURE") {
-    def * = (id, idTournament, idRound, idTeamHome, idTeamAway, homePoints, awayPoints, homePointsAwarded, awayPointsAwarded, startTime, status, createdDate) <> (FixtureRow.tupled, FixtureRow.unapply)
+    def * = (id, idRound, idTeamHome, idTeamAway, homePoints, awayPoints, homePointsAwarded, awayPointsAwarded, startTime, status, createdDate) <> (FixtureRow.tupled, FixtureRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(idTournament), Rep.Some(idRound), Rep.Some(idTeamHome), Rep.Some(idTeamAway), homePoints, awayPoints, homePointsAwarded, awayPointsAwarded, startTime, status, Rep.Some(createdDate)).shaped.<>({r=>import r._; _1.map(_=> FixtureRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6, _7, _8, _9, _10, _11, _12.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(idRound), Rep.Some(idTeamHome), Rep.Some(idTeamAway), homePoints, awayPoints, homePointsAwarded, awayPointsAwarded, startTime, status, Rep.Some(createdDate)).shaped.<>({r=>import r._; _1.map(_=> FixtureRow.tupled((_1.get, _2.get, _3.get, _4.get, _5, _6, _7, _8, _9, _10, _11.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column ID SqlType(INTEGER), AutoInc, PrimaryKey */
     val id: Rep[Int] = column[Int]("ID", O.AutoInc, O.PrimaryKey)
-    /** Database column ID_TOURNAMENT SqlType(INTEGER) */
-    val idTournament: Rep[Int] = column[Int]("ID_TOURNAMENT")
     /** Database column ID_ROUND SqlType(INTEGER) */
     val idRound: Rep[Int] = column[Int]("ID_ROUND")
     /** Database column ID_TEAM_HOME SqlType(INTEGER) */
@@ -111,17 +108,15 @@ trait Tables {
     /** Database column CREATED_DATE SqlType(TIMESTAMP) */
     val createdDate: Rep[java.sql.Timestamp] = column[java.sql.Timestamp]("CREATED_DATE")
 
+    /** Foreign key referencing Team (database name CONSTRAINT_F88) */
+    lazy val teamFk1 = foreignKey("CONSTRAINT_F88", idTeamHome, Team)(r => r.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
     /** Foreign key referencing Team (database name CONSTRAINT_F885) */
-    lazy val teamFk1 = foreignKey("CONSTRAINT_F885", idTeamHome, Team)(r => r.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
-    /** Foreign key referencing Team (database name CONSTRAINT_F8858) */
-    lazy val teamFk2 = foreignKey("CONSTRAINT_F8858", idTeamAway, Team)(r => r.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
-    /** Foreign key referencing Tournament (database name CONSTRAINT_F88) */
-    lazy val tournamentFk = foreignKey("CONSTRAINT_F88", idTournament, Tournament)(r => r.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
+    lazy val teamFk2 = foreignKey("CONSTRAINT_F885", idTeamAway, Team)(r => r.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
 
-    /** Uniqueness Index over (idTournament,idRound,idTeamHome) (database name CONSTRAINT_INDEX_F8858) */
-    val index1 = index("CONSTRAINT_INDEX_F8858", (idTournament, idRound, idTeamHome), unique=true)
-    /** Uniqueness Index over (idTournament,idRound,idTeamAway) (database name CONSTRAINT_INDEX_F88585) */
-    val index2 = index("CONSTRAINT_INDEX_F88585", (idTournament, idRound, idTeamAway), unique=true)
+    /** Uniqueness Index over (idRound,idTeamHome) (database name CONSTRAINT_INDEX_F885) */
+    val index1 = index("CONSTRAINT_INDEX_F885", (idRound, idTeamHome), unique=true)
+    /** Uniqueness Index over (idRound,idTeamAway) (database name CONSTRAINT_INDEX_F8858) */
+    val index2 = index("CONSTRAINT_INDEX_F8858", (idRound, idTeamAway), unique=true)
   }
   /** Collection-like TableQuery object for table Fixture */
   lazy val Fixture = new TableQuery(tag => new Fixture(tag))
