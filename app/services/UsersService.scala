@@ -59,4 +59,17 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
       q
     }
   }
+  
+  def putUser(userInput: UserRow) {
+    val salt = BCrypt.gensalt(12);
+		val hashed_password = BCrypt.hashpw(userInput.password, salt);
+		
+		import java.util.Calendar
+		
+    val u = userInput.copy(id = 0, password = hashed_password, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), status = "CREATED")
+    val uId = (User returning User.map(_.id)) += u
+    db.run {
+      uId.map(i => Logger.error("Create user with id: " + i))
+    }
+  }
 }

@@ -8,6 +8,8 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import java.sql.Timestamp
+import org.joda.time.DateTime
 
 object TippaJsonSerializer {
 
@@ -47,4 +49,15 @@ object TippaJsonSerializer {
 	    "status" -> row.status
     )
 	}
+	
+	implicit val userRowReads: Reads[UserRow] = (
+    (JsPath \ "id").read[Int] and
+    (JsPath \ "eMail").read[String] and
+    (JsPath \ "password").read[String] and
+    (JsPath \ "firstName").read[String] and
+    (JsPath \ "lastName").read[String] and
+    (JsPath \ "createdDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s))) and
+    (JsPath \ "status").read[String]
+  )(UserRow.apply _)
+
 }

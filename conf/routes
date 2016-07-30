@@ -4,7 +4,7 @@ GET       /login                                                              co
 POST      /authenticate                                                       controllers.Authentication.authenticate(returnTo)
 GET       /logout                                                             controllers.Authentication.logout
 
-#POST     /users
+POST     /users                                                               controllers.Users.putUser
 GET      /users/:id                                                           controllers.Users.getUser(id: Long)
 #PUT      /users/:id
 GET      /tournaments                                                         controllers.Tournaments.getTournaments
