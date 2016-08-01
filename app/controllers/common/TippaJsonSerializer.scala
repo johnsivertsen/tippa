@@ -38,6 +38,15 @@ object TippaJsonSerializer {
     )
   }
 
+	implicit val betRowReads: Reads[BetRow] = (
+    (JsPath \ "id").read[Int] and
+    (JsPath \ "idFixture").read[Int] and
+    (JsPath \ "idUser").read[Int] and
+    (JsPath \ "homePoints").readNullable[Int] and
+    (JsPath \ "awayPoints").readNullable[Int] and
+    (JsPath \ "createdDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s)))
+  )(BetRow.apply _)
+
 	implicit val userRowWrites: Writes[UserRow] = new Writes[UserRow] {
 		def writes(row: UserRow) = Json.obj(
 	    "id" -> row.id,

@@ -27,6 +27,7 @@ GET      /tournaments/:idTournament/users                                     co
 GET      /teams                                                               controllers.Teams.getTeams
 GET      /teams/:id                                                           controllers.Teams.getTeam(id: Long)
 GET      /bets/:id                                                            controllers.Bets.getBet(id: Long)
+POST     /bets                                                                controllers.Bets.putBet
 #GET      /friend_groups/:id/users
 #GET      /friend_groups/:id/messages
 #GET      /messages/:id

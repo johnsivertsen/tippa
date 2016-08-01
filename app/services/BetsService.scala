@@ -36,4 +36,14 @@ class BetsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
       Bet.filter(_.id === id.intValue).result.headOption
     }
   }
+  
+  def putBet(betInput: BetRow, userId: Int): Future[Int] = {
+		import java.util.Calendar
+
+    val b = betInput.copy(id = 0, idUser = userId, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+    val bId = (Bet returning Bet.map(_.id)) += b
+    db.run {
+      bId
+    }
+  }
 }

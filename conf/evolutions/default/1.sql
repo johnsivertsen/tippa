@@ -10,7 +10,8 @@ create table user (
   first_name varchar not null,
   last_name varchar not null,
   created_date timestamp not null default now(),
-  status varchar not null
+  status varchar not null,
+  unique(e_mail)
 );
 
 insert into user (id, e_mail, password, first_name, last_name, status) VALUES (1, 'email@email.com', '$2a$04$JrYh6HuEKF9X4SGKedmFaODNyIJLVwbDrYPJ8QF0sKel.X4Tm27Pa', 'John', 'Doe', 'ACTIVE');

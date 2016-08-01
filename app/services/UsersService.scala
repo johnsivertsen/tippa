@@ -60,16 +60,47 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
     }
   }
   
-  def putUser(userInput: UserRow) {
+  def putUser(userInput: UserRow): Future[Int] = {
     val salt = BCrypt.gensalt(12);
 		val hashed_password = BCrypt.hashpw(userInput.password, salt);
 		
 		import java.util.Calendar
 		
-    val u = userInput.copy(id = 0, password = hashed_password, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), status = "CREATED")
+		val u = userInput.copy(id = 0, eMail = userInput.eMail.toLowerCase, password = hashed_password, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), status = "CREATED")
     val uId = (User returning User.map(_.id)) += u
+
+    import scala.util.Try
+    import scala.util.Success
+    import scala.util.Failure
+
+    db.run(uId.asTry).map { result =>
+      result match {
+        case Success(res) =>
+          Logger.error("Successfully created new user. Id: " + res)
+          res
+        case Failure(e) => {
+          e match {
+            case e: org.h2.jdbc.JdbcSQLException => {
+              Logger.error("User creation failed: JdbcSQLException: " + ex.getMessage)
+              -1
+            }
+            case _: AnyRef => {
+              Logger.error("User creation failed: Unkown error: " + e.getMessage)
+              -2
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  def getUserIdFromEmail(eMail: String): Future[Option[Int]] = {
+    val q = for {
+        u <- User.filter(_.eMail === eMail)
+      } yield u.id
+
     db.run {
-      uId.map(i => Logger.error("Create user with id: " + i))
+      q.result.headOption
     }
   }
 }
