@@ -14,50 +14,50 @@ import scala.concurrent.Future
 @Singleton
 class Tournaments @Inject() (tournamentsService: TournamentsService, roundsService: RoundsService, fixturesService: FixturesService, betsService: BetsService, usersService: UsersService) extends Controller {
 
-	import services.Converters._
-	import controllers.common.TippaJsonSerializer._
+  import services.Converters._
+  import controllers.common.TippaJsonSerializer._
 
 //case class TournamentRow(id: Int, shortName: String, fullName: Option[String], `type`: String = "football", createdDate: java.sql.Timestamp)
-	implicit val tournamentRowWrites: Writes[TournamentRow] = new Writes[TournamentRow] {
-		def writes(row: TournamentRow) = Json.obj(
-		  "id" -> row.id,
-		  "shortName" -> row.shortName,
-		  "fullName" -> row.fullName,
-		  "type" -> row.`type`,
-		  "createdDate" -> formatter.print(row.createdDate)
-		  )
-	}
+  implicit val tournamentRowWrites: Writes[TournamentRow] = new Writes[TournamentRow] {
+    def writes(row: TournamentRow) = Json.obj(
+      "id" -> row.id,
+      "shortName" -> row.shortName,
+      "fullName" -> row.fullName,
+      "type" -> row.`type`,
+      "createdDate" -> formatter.print(row.createdDate)
+      )
+  }
 
 //  case class RoundRow(id: Int, idTournament: Int, number: Int, designatedDate: java.sql.Timestamp, createdDate: java.sql.Timestamp)
-	implicit val roundRowWrites: Writes[RoundRow] = new Writes[RoundRow] {
-		def writes(row: RoundRow) = Json.obj(
-		  "id" -> row.id,
-		  "idTournament" -> row.idTournament,
-		  "designatedDate" -> formatter.print(row.designatedDate),
-		  "createdDate" -> formatter.print(row.createdDate)
-		  )
-	}
+  implicit val roundRowWrites: Writes[RoundRow] = new Writes[RoundRow] {
+    def writes(row: RoundRow) = Json.obj(
+      "id" -> row.id,
+      "idTournament" -> row.idTournament,
+      "designatedDate" -> formatter.print(row.designatedDate),
+      "createdDate" -> formatter.print(row.createdDate)
+      )
+  }
 
 //  case class FixtureRow(id: Int, idRound: Int, idTeamHome: Int, idTeamAway: Int, homePoints: Option[Int], awayPoints: Option[Int], homePointsAwarded: Option[Int], awayPointsAwarded: Option[Int], startTime: Option[java.sql.Timestamp], status: Option[String], createdDate: java.sql.Timestamp)
-	implicit val fixtureRowWrites: Writes[FixtureRow] = new Writes[FixtureRow] {
-		def writes(row: FixtureRow) = Json.obj(
-		  "id"                -> row.id,
-		  "idRound"           -> row.idRound,
-		  "idTeamHome"        -> row.idTeamHome,
-		  "idTeamAway"        -> row.idTeamAway,
-		  "homePoints"        -> row.homePoints,
-		  "awayPoints"        -> row.awayPoints,
-		  "homePointsAwarded" -> row.homePointsAwarded,
-		  "awayPointsAwarded" -> row.awayPointsAwarded,
-		  "startTime"         -> {
-		    row.startTime.map { s =>
+  implicit val fixtureRowWrites: Writes[FixtureRow] = new Writes[FixtureRow] {
+    def writes(row: FixtureRow) = Json.obj(
+      "id"                -> row.id,
+      "idRound"           -> row.idRound,
+      "idTeamHome"        -> row.idTeamHome,
+      "idTeamAway"        -> row.idTeamAway,
+      "homePoints"        -> row.homePoints,
+      "awayPoints"        -> row.awayPoints,
+      "homePointsAwarded" -> row.homePointsAwarded,
+      "awayPointsAwarded" -> row.awayPointsAwarded,
+      "startTime"         -> {
+        row.startTime.map { s =>
           formatter.print(s)
-	      }
-		  },
-		  "status"            -> row.status,
-		  "createdDate"       -> formatter.print(row.createdDate)
-		  )
-	}
+        }
+      },
+      "status"            -> row.status,
+      "createdDate"       -> formatter.print(row.createdDate)
+      )
+  }
 
 
   def getTournaments = AuthenticatedAction.async { implicit request =>

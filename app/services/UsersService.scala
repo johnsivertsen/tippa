@@ -15,9 +15,9 @@ import java.sql.Timestamp
 import org.mindrot.jbcrypt.BCrypt
 
 class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
-	val dbConfig = dbConfigProvider.get[JdbcProfile]
-	val db = dbConfig.db
-	import dbConfig.driver.api._
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val db = dbConfig.db
+  import dbConfig.driver.api._
 
   def viewFilter(user: Option[UserRow], callingUsername: String): Option[UserRow] = {
     if (user.isDefined) {
@@ -31,24 +31,24 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
     }
   }
 
-	def getUser(id: Long, callingUsername: String): Future[Option[UserRow]] = {
-	  db.run {
-	    User.filter(_.id === id.intValue).result.headOption
-	  }.map(viewFilter(_, callingUsername))
-	}
-	
-	def authenticate(username: String, password: String): Future[Boolean] = {
-	  db.run {
-	    User.filter(user => user.eMail === username).result.headOption.map { user =>
-	      user match {
-	        case Some(user) => BCrypt.checkpw(password, user.password)
-	        case _ => false
-	      }
-	    }
-	  }
-	}
-	
-	def getTournamentUsers(idTournament: Long): Future[Seq[UserRow]] = {
+  def getUser(id: Long, callingUsername: String): Future[Option[UserRow]] = {
+    db.run {
+      User.filter(_.id === id.intValue).result.headOption
+    }.map(viewFilter(_, callingUsername))
+  }
+
+  def authenticate(username: String, password: String): Future[Boolean] = {
+    db.run {
+      User.filter(user => user.eMail === username).result.headOption.map { user =>
+        user match {
+          case Some(user) => BCrypt.checkpw(password, user.password)
+          case _ => false
+        }
+      }
+    }
+  }
+
+  def getTournamentUsers(idTournament: Long): Future[Seq[UserRow]] = {
     val q = sql"""select u.id, null, null, u.first_name, u.last_name, PARSEDATETIME('1970-01-01', 'yyyy-MM-dd'), null from
       user u, user_tournament ut
       where u.id = ut.id_user and
@@ -62,11 +62,11 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   
   def putUser(userInput: UserRow): Future[Int] = {
     val salt = BCrypt.gensalt(12);
-		val hashed_password = BCrypt.hashpw(userInput.password, salt);
-		
-		import java.util.Calendar
-		
-		val u = userInput.copy(id = 0, eMail = userInput.eMail.toLowerCase, password = hashed_password, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), status = "CREATED")
+    val hashed_password = BCrypt.hashpw(userInput.password, salt);
+
+    import java.util.Calendar
+    
+    val u = userInput.copy(id = 0, eMail = userInput.eMail.toLowerCase, password = hashed_password, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), status = "CREATED")
     val uId = (User returning User.map(_.id)) += u
 
     import scala.util.Try

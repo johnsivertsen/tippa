@@ -13,20 +13,20 @@ import org.joda.time.DateTime
 
 object TippaJsonSerializer {
 
-	import services.Converters._
+  import services.Converters._
 
-	implicit val teamRowWrites: Writes[TeamRow] = new Writes[TeamRow] {
-		def writes(row: TeamRow) = Json.obj(
-		  "id" -> row.id,
-		  "shortName" -> row.shortName,
-		  "fullName" -> row.longName,
-		  "description" -> row.description,
-		  "type" -> row.`type`,
-		  "country" -> row.country,
-		  "createdDate" -> formatter.print(row.createdDate)
-		  )
-	}
-	
+  implicit val teamRowWrites: Writes[TeamRow] = new Writes[TeamRow] {
+    def writes(row: TeamRow) = Json.obj(
+      "id" -> row.id,
+      "shortName" -> row.shortName,
+      "fullName" -> row.longName,
+      "description" -> row.description,
+      "type" -> row.`type`,
+      "country" -> row.country,
+      "createdDate" -> formatter.print(row.createdDate)
+      )
+  }
+  
   implicit val betRowWrites: Writes[BetRow] = new Writes[BetRow] {
     def writes(row: BetRow) = Json.obj(
       "id" -> row.id,
@@ -38,7 +38,7 @@ object TippaJsonSerializer {
     )
   }
 
-	implicit val betRowReads: Reads[BetRow] = (
+  implicit val betRowReads: Reads[BetRow] = (
     (JsPath \ "id").read[Int] and
     (JsPath \ "idFixture").read[Int] and
     (JsPath \ "idUser").read[Int] and
@@ -47,19 +47,19 @@ object TippaJsonSerializer {
     (JsPath \ "createdDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s)))
   )(BetRow.apply _)
 
-	implicit val userRowWrites: Writes[UserRow] = new Writes[UserRow] {
-		def writes(row: UserRow) = Json.obj(
-	    "id" -> row.id,
-	    "eMail" -> row.eMail,
-	    "password" -> row.password,
-	    "firstName" -> row.firstName,
-	    "lastName" -> row.lastName,
-	    "createdDate" -> formatter.print(row.createdDate),
-	    "status" -> row.status
+  implicit val userRowWrites: Writes[UserRow] = new Writes[UserRow] {
+    def writes(row: UserRow) = Json.obj(
+      "id" -> row.id,
+      "eMail" -> row.eMail,
+      "password" -> row.password,
+      "firstName" -> row.firstName,
+      "lastName" -> row.lastName,
+      "createdDate" -> formatter.print(row.createdDate),
+      "status" -> row.status
     )
-	}
-	
-	implicit val userRowReads: Reads[UserRow] = (
+  }
+  
+  implicit val userRowReads: Reads[UserRow] = (
     (JsPath \ "id").read[Int] and
     (JsPath \ "eMail").read[String] and
     (JsPath \ "password").read[String] and

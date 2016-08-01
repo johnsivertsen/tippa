@@ -15,9 +15,9 @@ import java.sql.Timestamp
 import org.mindrot.jbcrypt.BCrypt
 
 class TournamentsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
-	val dbConfig = dbConfigProvider.get[JdbcProfile]
-	val db = dbConfig.db
-	import dbConfig.driver.api._
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val db = dbConfig.db
+  import dbConfig.driver.api._
 
   def getTournaments: Future[Seq[TournamentRow]] = {
     db.run{

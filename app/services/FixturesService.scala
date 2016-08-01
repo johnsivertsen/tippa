@@ -14,9 +14,9 @@ import play.api.mvc._
 import java.sql.Timestamp
 
 class FixturesService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
-	val dbConfig = dbConfigProvider.get[JdbcProfile]
-	val db = dbConfig.db
-	import dbConfig.driver.api._
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val db = dbConfig.db
+  import dbConfig.driver.api._
 
   def getFixturesByTournamentAndRoundId(idTournament: Long, idRound: Long): Future[Seq[FixtureRow]] = {
     val q = for {

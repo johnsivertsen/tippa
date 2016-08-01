@@ -14,9 +14,9 @@ import play.api.mvc._
 import java.sql.Timestamp
 
 class TeamsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
-	val dbConfig = dbConfigProvider.get[JdbcProfile]
-	val db = dbConfig.db
-	import dbConfig.driver.api._
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val db = dbConfig.db
+  import dbConfig.driver.api._
 
   def getTeams: Future[Seq[TeamRow]] = {
     db.run{

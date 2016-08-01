@@ -14,7 +14,7 @@ import scala.concurrent.Future
 @Singleton
 class Teams @Inject() (teamsService: TeamsService) extends Controller {
 
-	import services.Converters._
+  import services.Converters._
   import controllers.common.TippaJsonSerializer._
 
 //  case class TeamRow(id: Int, shortName: String, longName: Option[String], description: Option[String], `type`: String = "football", country: String = "INTERNATIONAL", createdDate: java.sql.Timestamp)

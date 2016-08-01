@@ -27,7 +27,7 @@ class Bets @Inject() (betsService: BetsService, usersService: UsersService) exte
   }
   
   /*
-	curl --include --request POST --cookie "PLAY_SESSION=c7c8fd34da5fefbca70aaeec4c857ef0802d466a-username=jane%40email.com" --header "Content-type: application/json" --data '{"id":-1,"idFixture":1,"idUser":-1,"homePoints":0,"awayPoints":0,"createdDate":"1970-01-01 00:00:00.0000"}' http://localhost:9000/bets
+  curl --include --request POST --cookie "PLAY_SESSION=c7c8fd34da5fefbca70aaeec4c857ef0802d466a-username=jane%40email.com" --header "Content-type: application/json" --data '{"id":-1,"idFixture":1,"idUser":-1,"homePoints":0,"awayPoints":0,"createdDate":"1970-01-01 00:00:00.0000"}' http://localhost:9000/bets
 
   */
   

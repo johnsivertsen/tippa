@@ -14,26 +14,26 @@ import org.h2.jdbc.JdbcSQLException
 @Singleton
 class Users @Inject() (usersService: UsersService) extends Controller {
 
-	import services.Converters._
+  import services.Converters._
   import controllers.common.TippaJsonSerializer._
 
-	def getUser(id: Long) = AuthenticatedAction.async { implicit request =>
+  def getUser(id: Long) = AuthenticatedAction.async { implicit request =>
     usersService.getUser(id, request.username).map {data =>
       data match {
         case Some(value) => Ok(Json.toJson(data))
         case _ => NotFound
       }
     }
-	}
-	
-	/*
-	curl --include --request POST --header "Content-type: application/json" --data '{"id":-1,"firstName":"Jane","lastName":"Doe","eMail":"jane@email.com","password":"asdf2","createdDate":"2016-01-02 23:59:01.00000","status":"N/A"}' http://localhost:9000/users
-	
-	*/
-	
-	def putUser = Action.async(BodyParsers.parse.json) { request =>
-	  val userResult = request.body.validate[UserRow]
-	  userResult.fold(
+  }
+  
+  /*
+  curl --include --request POST --header "Content-type: application/json" --data '{"id":-1,"firstName":"Jane","lastName":"Doe","eMail":"jane@email.com","password":"asdf2","createdDate":"2016-01-02 23:59:01.00000","status":"N/A"}' http://localhost:9000/users
+  
+  */
+  
+  def putUser = Action.async(BodyParsers.parse.json) { request =>
+    val userResult = request.body.validate[UserRow]
+    userResult.fold(
       errors => {
         Future.successful(BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toJson(errors))))
       },
@@ -46,5 +46,5 @@ class Users @Inject() (usersService: UsersService) extends Controller {
         }
       }
     )
-	}
+  }
 }

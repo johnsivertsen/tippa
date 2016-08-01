@@ -16,9 +16,9 @@ import play.api.mvc._
 import java.sql.Timestamp
 
 class RoundsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
-	val dbConfig = dbConfigProvider.get[JdbcProfile]
-	val db = dbConfig.db
-	import dbConfig.driver.api._
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val db = dbConfig.db
+  import dbConfig.driver.api._
 
   def getRoundsByTournamentId(idTournament: Long): Future[Seq[RoundRow]] = {
     db.run{

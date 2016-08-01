@@ -14,9 +14,9 @@ import play.api.mvc._
 import java.sql.Timestamp
 
 class BetsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
-	val dbConfig = dbConfigProvider.get[JdbcProfile]
-	val db = dbConfig.db
-	import dbConfig.driver.api._
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val db = dbConfig.db
+  import dbConfig.driver.api._
 
   def getBetsByTournamentAndRoundAndFixtureId(idTournament: Long, idRound: Long, idFixture: Long): Future[Seq[BetRow]] = {
     val q = for {
@@ -38,7 +38,7 @@ class BetsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   }
   
   def putBet(betInput: BetRow, userId: Int): Future[Int] = {
-		import java.util.Calendar
+    import java.util.Calendar
 
     val b = betInput.copy(id = 0, idUser = userId, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
     val bId = (Bet returning Bet.map(_.id)) += b
