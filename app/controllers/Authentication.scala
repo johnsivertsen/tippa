@@ -2,7 +2,7 @@ package controllers
 
 import services.UsersService
 import play.api.mvc._
-import play.api.mvc.Results.Redirect
+import play.api.mvc.Results._
 import play.api.data.Form
 import play.api.data.Forms.{tuple, nonEmptyText}
 import play.api.i18n.{I18nSupport, MessagesApi, Messages}
@@ -29,9 +29,10 @@ class Authentication @Inject() (usersService: UsersService, val messagesApi: Mes
       errors => Future.successful(BadRequest(views.html.login(errors, returnTo))),
       {
         case (username, password) =>
-          usersService.authenticate(username, password).map { r =>
-            r match {
-              case true => Redirect(returnTo).addingToSession("username" -> username)
+          usersService.authenticate(username, password).map { ur =>
+            ur match {
+              case (true, Some(r)) => Redirect(returnTo).addingToSession(UsernameCookie -> username).addingToSession(RoleCookie -> r)
+              case (true, None) => Redirect(returnTo).addingToSession(UsernameCookie -> username)
               case _ => {
                 val erroneousSubmission = submission.withGlobalError("Invalid username and/or password")
                 BadRequest(views.html.login(erroneousSubmission, returnTo))
@@ -43,14 +44,15 @@ class Authentication @Inject() (usersService: UsersService, val messagesApi: Mes
   }
   
   val logout = Action { implicit request =>
-    Redirect(routes.AppController.index).removingFromSession(UserKey)
+    Redirect(routes.AppController.index).removingFromSession(UsernameCookie).removingFromSession(RoleCookie)
   }
 
 }
 
 object AuthenticationHelper {
 
-  val UserKey = "username"
+  val UsernameCookie = "username"
+  val RoleCookie = "role"
   
   type Login = (String, String)
   object Login {
@@ -60,9 +62,9 @@ object AuthenticationHelper {
     ))
   }
 
-  def authenticated[A](f: String => A, g: => A)(implicit request: RequestHeader): A =
-    request.session.get(UserKey) match {
-      case Some(username) => f(username)
+  def authenticated[A](f: (String,String) => A, g: => A)(implicit request: RequestHeader): A =
+    request.session.get(UsernameCookie) match {
+      case Some(username) => f(username, request.session.get(RoleCookie).getOrElse(""))
       case None => g
     }
   
@@ -73,12 +75,21 @@ object AuthenticationHelper {
   
 }
 
-class AuthenticatedRequest[A](val username: String, request: Request[A]) extends WrappedRequest[A](request)
+class AuthenticatedRequest[A](val username: String, val role: String, request: Request[A]) extends WrappedRequest[A](request)
+
+object HasAdminRoleAction extends ActionFilter[AuthenticatedRequest] {
+  def filter[A](input: AuthenticatedRequest[A]) = Future.successful {
+    if (input.role != "ADMIN")
+      Some(Forbidden)
+    else
+      None
+  }
+}
 
 object AuthenticatedAction extends ActionBuilder[AuthenticatedRequest] {
   def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]) =
     AuthenticationHelper.authenticated(
-      username => block(new AuthenticatedRequest(username, request)),
+      (username, role) => block(new AuthenticatedRequest(username, role, request)),
       Future.successful(Redirect(routes.Authentication.login(request.uri)))
     )(request)
 }

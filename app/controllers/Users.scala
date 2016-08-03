@@ -31,14 +31,14 @@ class Users @Inject() (usersService: UsersService) extends Controller {
   
   */
   
-  def putUser = Action.async(BodyParsers.parse.json) { request =>
+  def postUser = Action.async(BodyParsers.parse.json) { request =>
     val userResult = request.body.validate[UserRow]
     userResult.fold(
       errors => {
         Future.successful(BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toJson(errors))))
       },
       userRow => {
-        usersService.putUser(userRow).map { result =>
+        usersService.postUser(userRow).map { result =>
           result match {
             case x: Int if (x > 0) => Ok(Json.obj("status" -> "OK", "message" -> ("User '" + userRow.eMail + "' saved with id " + x)))
             case _ => InternalServerError(Json.obj("status" -> "KO", "message" -> "User creation failed"))

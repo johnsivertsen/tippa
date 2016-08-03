@@ -17,17 +17,6 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
   import services.Converters._
   import controllers.common.TippaJsonSerializer._
 
-//case class TournamentRow(id: Int, shortName: String, fullName: Option[String], `type`: String = "football", createdDate: java.sql.Timestamp)
-  implicit val tournamentRowWrites: Writes[TournamentRow] = new Writes[TournamentRow] {
-    def writes(row: TournamentRow) = Json.obj(
-      "id" -> row.id,
-      "shortName" -> row.shortName,
-      "fullName" -> row.fullName,
-      "type" -> row.`type`,
-      "createdDate" -> formatter.print(row.createdDate)
-      )
-  }
-
 //  case class RoundRow(id: Int, idTournament: Int, number: Int, designatedDate: java.sql.Timestamp, createdDate: java.sql.Timestamp)
   implicit val roundRowWrites: Writes[RoundRow] = new Writes[RoundRow] {
     def writes(row: RoundRow) = Json.obj(
@@ -113,5 +102,28 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
     usersService.getTournamentUsers(idTournament).map {
       users => Ok(Json.toJson(users)(Writes.seq(userRowWrites)))
     }
+  }
+  
+  /*
+
+  curl --include --request POST --header "Content-type: application/json" --data '{"id":-1,"shortName":"FM 2016","fullName":"Effordeildin 2016","type":"football","password":"asdf2","createdDate":"2016-01-02 23:59:01.00000"}' http://localhost:9000/tournaments
+  curl --include --request POST --cookie "PLAY_SESSION=c7c8fd34da5fefbca70aaeec4c857ef0802d466a-username=jane%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"shortName":"FM 2016","fullName":"Effordeildin 2016","type":"football","password":"asdf2","createdDate":"2016-01-02 23:59:01.00000"}' http://localhost:9000/tournaments
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"shortName":"FM 2016","fullName":"Effordeildin 2016","type":"football","password":"asdf2","createdDate":"2016-01-02 23:59:01.00000"}' http://localhost:9000/tournaments
+  
+  */
+
+  
+  def postTournament = (AuthenticatedAction andThen HasAdminRoleAction).async(BodyParsers.parse.json) { request =>
+    val tournamentResult = request.body.validate[TournamentRow]
+    tournamentResult.fold(
+      errors => {
+        Future.successful(BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toJson(errors))))
+      },
+      tournamentRow => {
+        tournamentsService.postTournament(tournamentRow).map { result =>
+          Ok(Json.obj("status" -> "OK", "message" -> "Tournament saved"))
+        }
+      }
+    )
   }
 }

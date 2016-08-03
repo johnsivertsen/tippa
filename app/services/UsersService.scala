@@ -37,13 +37,24 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
     }.map(viewFilter(_, callingUsername))
   }
 
-  def authenticate(username: String, password: String): Future[Boolean] = {
+  def authenticate(username: String, password: String): Future[(Boolean, Option[String])] = {
+    val q = for {
+      (u, r) <- User.filter(user => user.eMail === username) joinLeft
+        UserRole.filter(_.role === "ADMIN") on (_.id === _.idUser)
+    } yield (u, r)
+    
     db.run {
-      User.filter(user => user.eMail === username).result.headOption.map { user =>
-        user match {
-          case Some(user) => BCrypt.checkpw(password, user.password)
-          case _ => false
+      q.result.headOption
+    }.map { ur =>
+      ur match {
+        case Some(ur) => {
+          ur match {
+            case (u, Some(r)) => (BCrypt.checkpw(password, u.password), Some(r.role))
+            case (u, None) => (BCrypt.checkpw(password, u.password), None)
+            case _ => (false, None)
+          }
         }
+        case _ => (false, None)
       }
     }
   }
@@ -60,7 +71,7 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
     }
   }
   
-  def putUser(userInput: UserRow): Future[Int] = {
+  def postUser(userInput: UserRow): Future[Int] = {
     val salt = BCrypt.gensalt(12);
     val hashed_password = BCrypt.hashpw(userInput.password, salt);
 
@@ -80,7 +91,7 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
           res
         case Failure(e) => {
           e match {
-            case e: org.h2.jdbc.JdbcSQLException => {
+            case ex: org.h2.jdbc.JdbcSQLException => {
               Logger.error("User creation failed: JdbcSQLException: " + ex.getMessage)
               -1
             }
@@ -96,7 +107,7 @@ class UsersService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   
   def getUserIdFromEmail(eMail: String): Future[Option[Int]] = {
     val q = for {
-        u <- User.filter(_.eMail === eMail)
+        u <- User.filter(_.eMail === eMail.toLowerCase)
       } yield u.id
 
     db.run {

@@ -30,4 +30,36 @@ class TournamentsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
       Tournament.filter(_.id === id.intValue).result.headOption
     }
   }
+  
+  def postTournament(tournamentInput: TournamentRow): Future[Int] = {
+    import java.util.Calendar
+    
+    val t = tournamentInput.copy(id = 0, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+    val tId = (Tournament returning Tournament.map(_.id)) += t
+
+    import scala.util.Try
+    import scala.util.Success
+    import scala.util.Failure
+
+    db.run(tId.asTry).map { result =>
+      result match {
+        case Success(res) =>
+          Logger.error("Successfully created new tournament. Id: " + res)
+          res
+        case Failure(e) => {
+          e match {
+            case ex: org.h2.jdbc.JdbcSQLException => {
+              Logger.error("Tournament creation failed: JdbcSQLException: " + ex.getMessage)
+              -1
+            }
+            case _: AnyRef => {
+              Logger.error("Tournament creation failed: Unkown error: " + e.getMessage)
+              -2
+            }
+          }
+        }
+      }
+    }
+  }
+
 }
