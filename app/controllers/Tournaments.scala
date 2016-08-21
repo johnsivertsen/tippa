@@ -17,38 +17,6 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
   import services.Converters._
   import controllers.common.TippaJsonSerializer._
 
-//  case class RoundRow(id: Int, idTournament: Int, number: Int, designatedDate: java.sql.Timestamp, createdDate: java.sql.Timestamp)
-  implicit val roundRowWrites: Writes[RoundRow] = new Writes[RoundRow] {
-    def writes(row: RoundRow) = Json.obj(
-      "id" -> row.id,
-      "idTournament" -> row.idTournament,
-      "designatedDate" -> formatter.print(row.designatedDate),
-      "createdDate" -> formatter.print(row.createdDate)
-      )
-  }
-
-//  case class FixtureRow(id: Int, idRound: Int, idTeamHome: Int, idTeamAway: Int, homePoints: Option[Int], awayPoints: Option[Int], homePointsAwarded: Option[Int], awayPointsAwarded: Option[Int], startTime: Option[java.sql.Timestamp], status: Option[String], createdDate: java.sql.Timestamp)
-  implicit val fixtureRowWrites: Writes[FixtureRow] = new Writes[FixtureRow] {
-    def writes(row: FixtureRow) = Json.obj(
-      "id"                -> row.id,
-      "idRound"           -> row.idRound,
-      "idTeamHome"        -> row.idTeamHome,
-      "idTeamAway"        -> row.idTeamAway,
-      "homePoints"        -> row.homePoints,
-      "awayPoints"        -> row.awayPoints,
-      "homePointsAwarded" -> row.homePointsAwarded,
-      "awayPointsAwarded" -> row.awayPointsAwarded,
-      "startTime"         -> {
-        row.startTime.map { s =>
-          formatter.print(s)
-        }
-      },
-      "status"            -> row.status,
-      "createdDate"       -> formatter.print(row.createdDate)
-      )
-  }
-
-
   def getTournaments = AuthenticatedAction.async { implicit request =>
     tournamentsService.getTournaments.map(data => Ok(Json.toJson(data)(Writes.seq(tournamentRowWrites))))
   }
@@ -68,14 +36,14 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
     }
   }
 
-  def getTournamentRoundFixtures(idTournament: Long, idRound: Long) = AuthenticatedAction.async { implicit request =>
-    fixturesService.getFixturesByTournamentAndRoundId(idTournament, idRound).map {
+  def getTournamentRoundFixtures(idTournament: Long, roundNumber: Long) = AuthenticatedAction.async { implicit request =>
+    fixturesService.getFixturesByTournamentAndRoundNumber(idTournament, roundNumber).map {
       fixtures => Ok(Json.toJson(fixtures)(Writes.seq(fixtureRowWrites)))
     }
   }
 
-  def getTournamentRoundFixture(idTournament: Long, idRound: Long, idFixture: Long) = AuthenticatedAction.async { implicit request =>
-    fixturesService.getFixtureByTournamentAndRoundAndFixtureId(idTournament, idRound, idFixture).map { data =>
+  def getTournamentRoundFixture(idTournament: Long, roundNumber: Long, idFixture: Long) = AuthenticatedAction.async { implicit request =>
+    fixturesService.getFixtureByTournamentAndRoundNumberAndFixtureId(idTournament, roundNumber, idFixture).map { data =>
       data match {
         case Some(value) => Ok(Json.toJson(value))
         case _ => NotFound
@@ -83,8 +51,8 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
     }
   }
 
-  def getTournamentRound(idTournament: Long, idRound: Long) = AuthenticatedAction.async { implicit request =>
-    roundsService.getRoundByTournamentAndRoundId(idTournament, idRound).map { data =>
+  def getTournamentRound(idTournament: Long, roundNumber: Long) = AuthenticatedAction.async { implicit request =>
+    roundsService.getRoundByTournamentAndRoundNumber(idTournament, roundNumber).map { data =>
       data match {
         case Some(value) => Ok(Json.toJson(value))
         case _ => NotFound
@@ -92,8 +60,8 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
     }
   }
   
-  def getTournamentRoundFixtureBets(idTournament: Long, idRound: Long, idFixture: Long) = AuthenticatedAction.async { implicit request =>
-    betsService.getBetsByTournamentAndRoundAndFixtureId(idTournament, idRound, idFixture).map {
+  def getTournamentRoundFixtureBets(idTournament: Long, roundNumber: Long, idFixture: Long) = AuthenticatedAction.async { implicit request =>
+    betsService.getBetsByTournamentAndRoundNumberAndFixtureId(idTournament, roundNumber, idFixture).map {
       bets => Ok(Json.toJson(bets)(Writes.seq(betRowWrites)))
     }
   }
@@ -122,6 +90,67 @@ class Tournaments @Inject() (tournamentsService: TournamentsService, roundsServi
       tournamentRow => {
         tournamentsService.postTournament(tournamentRow).map { result =>
           Ok(Json.obj("status" -> "OK", "message" -> "Tournament saved"))
+        }
+      }
+    )
+  }
+  
+  
+  /*
+
+  //  case class RoundRow(id: Int, idTournament: Int, number: Int, designatedDate: java.sql.Timestamp, createdDate: java.sql.Timestamp)
+
+  curl --include --request POST --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":1,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  curl --include --request POST --cookie "PLAY_SESSION=c7c8fd34da5fefbca70aaeec4c857ef0802d466a-username=jane%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":1,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":1,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":2,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":3,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":4,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"number":5,"designatedDate":"2016-08-02 23:59:01.00000","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds
+  
+  */
+
+  
+  def postTournamentRound(idTournament: Long) = (AuthenticatedAction andThen HasAdminRoleAction).async(BodyParsers.parse.json) { request =>
+    val roundResult = request.body.validate[RoundRow]
+    roundResult.fold(
+      errors => {
+        Future.successful(BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toJson(errors))))
+      },
+      roundRow => {
+        roundsService.postRound(idTournament, roundRow).map { result =>
+          result.fold(
+            error => BadRequest(Json.obj("status" -> "KO", "message" -> error)),
+            success => Ok(Json.obj("status" -> "OK", "message" -> "Round saved"))
+          )
+        }
+      }
+    )
+  }
+  
+  /*
+  
+                                                                                                                                                                                            case class FixtureRow(id: Int, idRound: Int, idTeamHome: Int, idTeamAway: Int, homePoints: Option[Int], awayPoints: Option[Int], homePointsAwarded: Option[Int], awayPointsAwarded: Option[Int], startTime: Option[java.sql.Timestamp], status: Option[String], createdDate: java.sql.Timestamp)
+
+  curl --include --request POST --cookie "PLAY_SESSION=9415c88f606f7fee4389e880a0dfb0922ce71c53-username=email%40email.com&role=ADMIN" --header "Content-type: application/json" --data '{"id":-1,"idTournament":1,"idRound":1,"idTeamHome":1,"idTeamAway":2,"homePoints":0,"awayPoints":0,"homePointsAwarded":0,"awayPointsAwarded":0,"startTime":"2016-08-02 23:59:01.00000","status":"CREATED","createdDate":"1970-08-02 23:59:01.00000"}' http://localhost:9000/tournaments/1/rounds/1/fixtures
+  */
+  
+  def postTournamentRoundFixture(idTournament: Long, roundNumber: Long) = (AuthenticatedAction andThen HasAdminRoleAction).async(BodyParsers.parse.json) { request =>
+    val fixtureValidator = request.body.validate[FixtureRow]
+    fixtureValidator.fold(
+      errors => {
+        Future.successful(BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toJson(errors))))
+      },
+      fixtureRow => {
+        if (roundNumber != fixtureRow.idRound) {
+          Future.successful(BadRequest(Json.obj("status" -> "KO", "message" -> "Bad input paramenters. Tournament and round ids in JSON and URL don't match")))
+        } else {
+          fixturesService.postFixture(idTournament, roundNumber, fixtureRow).map { result =>
+            result.fold(
+              error => BadRequest(Json.obj("status" -> "KO", "message" -> error)),
+              success => Ok(Json.obj("status" -> "OK", "message" -> "Fixture saved"))
+            )
+          }
         }
       }
     )

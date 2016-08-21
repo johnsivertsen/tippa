@@ -18,10 +18,10 @@ class BetsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   val db = dbConfig.db
   import dbConfig.driver.api._
 
-  def getBetsByTournamentAndRoundAndFixtureId(idTournament: Long, idRound: Long, idFixture: Long): Future[Seq[BetRow]] = {
+  def getBetsByTournamentAndRoundNumberAndFixtureId(idTournament: Long, roundNumber: Long, idFixture: Long): Future[Seq[BetRow]] = {
     val q = for {
       t <- Tournament if t.id === idTournament.intValue
-      r <- Round if r.idTournament === t.id && r.id === idRound.intValue
+      r <- Round if r.idTournament === t.id && r.number === roundNumber.intValue
       f <- Fixture if f.idRound === r.id && f.id === idFixture.intValue
       b <- Bet if b.idFixture === f.id
     } yield (b)

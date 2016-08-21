@@ -14,6 +14,12 @@ import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc._
 import java.sql.Timestamp
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
+import java.lang.IllegalArgumentException
+import java.util.Calendar
+
 
 class RoundsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   val dbConfig = dbConfigProvider.get[JdbcProfile]
@@ -26,14 +32,46 @@ class RoundsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
     }
   }
   
-  def getRoundByTournamentAndRoundId(idTournament: Long, idRound: Long): Future[Option[RoundRow]] = {
+  def getRoundByTournamentAndRoundNumber(idTournament: Long, roundNumber: Long): Future[Option[RoundRow]] = {
     val q = for {
       t <- Tournament if t.id === idTournament.intValue
-      r <- Round if r.idTournament === t.id && r.id === idRound.intValue
+      r <- Round if r.idTournament === t.id && r.number === roundNumber.intValue
     } yield (r)
 
     db.run{
       q.result.headOption
     }
+  }
+  
+  def validateTournamentIds(idTournament: Int, round: RoundRow): Either[String, RoundRow] = {
+    if (idTournament == round.idTournament) {
+      Right(round)
+    } else {
+      Left("Tournament ids do not match in round POST input")
+    }
+  }
+  
+  def postRound(idTournament: Long, round: RoundRow): Future[Either[String, Int]] = {
+    val r = round.copy(id = 0, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+    val rId = (Round returning Round.map(_.id)) += r
+    
+    validateTournamentIds(idTournament.intValue, round).fold(
+      error => {
+        Future.successful(Left(error))
+      },
+      success => {
+        db.run(rId.asTry).map { result =>
+          result match {
+            case Success(res) =>
+              Logger.error("Round inserted successfully. Id: " + res)
+              Right(res)
+            case Failure(e) => {
+              Logger.error("Round insertion failed. Message: " + e.getMessage())
+              Left(e.getMessage())
+            }
+          }
+        }
+      }
+    )
   }
 }

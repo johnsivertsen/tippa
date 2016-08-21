@@ -13,6 +13,11 @@ import play.api.Logger
 import play.api.mvc._
 import java.sql.Timestamp
 import org.mindrot.jbcrypt.BCrypt
+import java.util.Calendar
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
+
 
 class TournamentsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   val dbConfig = dbConfigProvider.get[JdbcProfile]
@@ -32,14 +37,8 @@ class TournamentsService @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   }
   
   def postTournament(tournamentInput: TournamentRow): Future[Int] = {
-    import java.util.Calendar
-    
     val t = tournamentInput.copy(id = 0, createdDate = new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
     val tId = (Tournament returning Tournament.map(_.id)) += t
-
-    import scala.util.Try
-    import scala.util.Success
-    import scala.util.Failure
 
     db.run(tId.asTry).map { result =>
       result match {

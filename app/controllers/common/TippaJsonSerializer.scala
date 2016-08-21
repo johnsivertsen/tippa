@@ -15,6 +15,45 @@ object TippaJsonSerializer {
 
   import services.Converters._
 
+//  case class FixtureRow(id: Int, idRound: Int, idTeamHome: Int, idTeamAway: Int, homePoints: Option[Int], awayPoints: Option[Int], homePointsAwarded: Option[Int], awayPointsAwarded: Option[Int], startTime: Option[java.sql.Timestamp], status: Option[String], createdDate: java.sql.Timestamp)
+  implicit val fixtureRowWrites: Writes[FixtureRow] = new Writes[FixtureRow] {
+    def writes(row: FixtureRow) = Json.obj(
+      "id"                -> row.id,
+      "idRound"           -> row.idRound,
+      "idTeamHome"        -> row.idTeamHome,
+      "idTeamAway"        -> row.idTeamAway,
+      "homePoints"        -> row.homePoints,
+      "awayPoints"        -> row.awayPoints,
+      "homePointsAwarded" -> row.homePointsAwarded,
+      "awayPointsAwarded" -> row.awayPointsAwarded,
+      "startTime"         -> {
+        row.startTime.map { s =>
+          formatter.print(s)
+        }
+      },
+      "status"            -> row.status,
+      "createdDate"       -> formatter.print(row.createdDate)
+      )
+  }
+
+  implicit val fixtureRowReads: Reads[FixtureRow] = (
+    (JsPath \ "id").read[Int] and
+    (JsPath \ "idRound").read[Int] and
+    (JsPath \ "idTeamHome").read[Int] and
+    (JsPath \ "idTeamAway").read[Int] and
+    (JsPath \ "homePoints").readNullable[Int] and
+    (JsPath \ "awayPoints").readNullable[Int] and
+    (JsPath \ "homePointsAwarded").readNullable[Int] and
+    (JsPath \ "awayPointsAwarded").readNullable[Int] and
+    (JsPath \ "startTime").readNullable[String].map(s =>
+      s match {
+        case Some(value) => Some(dateTimeToTimestamp(stringToDateTime(value)))
+        case _ => None
+      }) and
+    (JsPath \ "status").readNullable[String] and
+    (JsPath \ "createdDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s)))
+  )(FixtureRow.apply _)
+
   implicit val teamRowWrites: Writes[TeamRow] = new Writes[TeamRow] {
     def writes(row: TeamRow) = Json.obj(
       "id" -> row.id,
@@ -87,4 +126,22 @@ object TippaJsonSerializer {
     (JsPath \ "type").read[String] and
     (JsPath \ "createdDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s)))
   )(TournamentRow.apply _)
+  
+  //  case class RoundRow(id: Int, idTournament: Int, number: Int, designatedDate: java.sql.Timestamp, createdDate: java.sql.Timestamp)
+  implicit val roundRowWrites: Writes[RoundRow] = new Writes[RoundRow] {
+    def writes(row: RoundRow) = Json.obj(
+      "id" -> row.id,
+      "idTournament" -> row.idTournament,
+      "designatedDate" -> formatter.print(row.designatedDate),
+      "createdDate" -> formatter.print(row.createdDate)
+      )
+  }
+
+  implicit val roundRowReads: Reads[RoundRow] = (
+    (JsPath \ "id").read[Int] and
+    (JsPath \ "idTournament").read[Int] and
+    (JsPath \ "number").read[Int] and
+    (JsPath \ "designatedDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s))) and
+    (JsPath \ "createdDate").read[String].map(s => dateTimeToTimestamp(stringToDateTime(s)))
+  )(RoundRow.apply _)
 }
