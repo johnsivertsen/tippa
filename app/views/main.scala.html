@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="et">
     <head>
-        <title></title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("css/main.css")">
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("css/lib/bootstrap.min.css")">
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("css/lib/ng-table.min.css")">
+        <title>tippa</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("node_modules/bootstrap/dist/css/lib/bootstrap.min.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("img/favicon.png")">
-    <script src="@routes.Assets.versioned("js/lib/es6-shim.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.versioned("js/lib/angular.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.versioned("js/lib/angular-resource.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.versioned("js/lib/angular-route.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.versioned("js/lib/ng-table.min.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.versioned("js/app.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.versioned("js/controllers/order-controller.js")" type="text/javascript"></script>
+
+        <!-- IE required polyfill -->
+        <script src="@routes.Assets.versioned("node_modules/core-js/client/shim.min.js")"></script>
+
+        <script src="@routes.Assets.versioned("node_modules/zone.js/dist/zone.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/reflect-metadata/Reflect.js")"></script>
+
+        <script src="@routes.Assets.versioned("node_modules/rxjs/bundles/Rx.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/core/bundles/core.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/common/bundles/common.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/compiler/bundles/compiler.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/platform-browser/bundles/platform-browser.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js")"></script>
     </head>
     <body>
         <div ng-view style="display:block; position:relative; float:left; clear:both; width:100%; margin:10px;"></div>

@@ -2,11 +2,23 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Shop — Play Framework Essentials</title>
-        <!--<link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/shop.css")"/>
-        <link rel="favicon" href="@routes.Assets.versioned("images/favicon.png")"/>-->
+        <title>tippa</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("node_modules/bootstrap/dist/css/lib/bootstrap.min.css")">
+        <!-- IE required polyfill -->
+        <script src="@routes.Assets.versioned("node_modules/core-js/client/shim.min.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/zone.js/dist/zone.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/reflect-metadata/Reflect.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/rxjs/bundles/Rx.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/core/bundles/core.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/common/bundles/common.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/compiler/bundles/compiler.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/platform-browser/bundles/platform-browser.umd.js")"></script>
+        <script src="@routes.Assets.versioned("node_modules/@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js")"></script>
+
+        <script src="@routes.Assets.versioned("javascripts/main.js")"></script>
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("img/favicon.png")">
     </head>
     <body>
-        @content
+         @content
     </body>
 </html>
