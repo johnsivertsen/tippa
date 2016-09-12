@@ -3,19 +3,69 @@
 <html>
     <head>
         <title>tippa</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("node_modules/bootstrap/dist/css/lib/bootstrap.min.css")">
-        <!-- IE required polyfill -->
-        <script src="@routes.Assets.versioned("node_modules/core-js/client/shim.min.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/zone.js/dist/zone.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/reflect-metadata/Reflect.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/rxjs/bundles/Rx.umd.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/@angular/core/bundles/core.umd.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/@angular/common/bundles/common.umd.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/@angular/compiler/bundles/compiler.umd.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/@angular/platform-browser/bundles/platform-browser.umd.js")"></script>
-        <script src="@routes.Assets.versioned("node_modules/@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js")"></script>
+            <!-- 1. Load libraries -->
+            <!-- Polyfill(s) for older browsers -->
+        <script type='text/javascript' src='@routes.Assets.versioned("lib/systemjs/dist/system-polyfills.js")'></script>
 
-        <script src="@routes.Assets.versioned("javascripts/main.js")"></script>
+        <script type='text/javascript' src='@routes.Assets.versioned("lib/core-js/client/shim.min.js")'></script>
+        <script type='text/javascript' src='@routes.Assets.versioned("lib/zone.js/dist/zone.js")'></script>
+        <script type='text/javascript' src='@routes.Assets.versioned("lib/reflect-metadata/Reflect.js")'></script>
+        <script type='text/javascript' src='@routes.Assets.versioned("lib/systemjs/dist/system.src.js")'></script>
+        <script>    @* our app is downloaded as individual javascript files by SystemJs
+                     after compilation by sbt-typescript*@
+        var map = {
+            'app': 'assets/app',
+            '@@angular':'assets/lib/@@angular',
+            'rxjs':'assets/lib/rxjs',
+            'symbol-observable': 'assets/lib/symbol-observable'
+
+        };
+
+        var packages = {
+            'app': {main: 'greeter.js', defaultExtension: 'js'},
+            'rxjs': {defaultExtension: 'js'},
+            'assets/lib': {defaultExtension: 'js'},
+            'symbol-observable': {defaultExtension: 'js', main: 'index.js'}
+        };
+        var ngPackageNames = [
+            'common',
+            'compiler',
+            'core',
+            'http',
+            'platform-browser',
+            'platform-browser-dynamic',
+            'router'
+        ];
+
+        function packIndex(pkgName) {
+            packages['@@angular/'+pkgName] = { main: 'index.js', defaultExtension: 'js' };
+        }
+        function packUmd(pkgName) {
+            packages['@@angular/'+pkgName] = { main: '/bundles/' + pkgName + '.umd.js', defaultExtension: 'js' };
+        }
+        // Most environments should use UMD; some (Karma) need the individual index files
+        function addAngularModulesToMap(pkgName) {
+            map['@@angular/'+pkgName] = 'assets/lib/angular__' + pkgName;
+        }
+
+        // Add package entries for angular packages
+        var setPackageConfig = System.packageWithIndex ? packIndex : packUmd;
+        ngPackageNames.forEach(setPackageConfig)
+
+        // Add map entries for angular packages
+        ngPackageNames.forEach(function(pkgName){
+            addAngularModulesToMap(pkgName)
+        });
+
+        System.config({
+            map : map,
+            packages: packages,
+        });
+        @* SystemJs works out which other modules our app module depends on and will download and load them*@
+        System.import('app')
+                .catch(console.error.bind(console));
+
+		</script>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("img/favicon.png")">
     </head>
     <body>
